@@ -13,6 +13,7 @@ import {
   deleteTableRecord,
   checkAdminSession,
   adminLogout,
+  getCachedAdmin,
   DashboardMetrics,
   Kiosk,
   Transaction,
@@ -106,14 +107,38 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     async function verifyAuth() {
-      const user = await checkAdminSession()
-      if (!user) {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null
+      const cached = getCachedAdmin()
+
+      if (!token) {
         router.push('/admin/login')
         return
       }
-      setAdminUser(user)
-      setAuthLoading(false)
-      loadAdminData()
+
+      // Fast-path: If admin user is already cached in localStorage, mount instantly
+      if (cached) {
+        setAdminUser(cached)
+        setAuthLoading(false)
+        loadAdminData()
+      }
+
+      // Background non-blocking session check
+      try {
+        const verified = await checkAdminSession()
+        if (!verified) {
+          router.push('/admin/login')
+        } else {
+          setAdminUser(verified)
+          if (!cached) {
+            setAuthLoading(false)
+            loadAdminData()
+          }
+        }
+      } catch {
+        if (!cached) {
+          router.push('/admin/login')
+        }
+      }
     }
     verifyAuth()
   }, [])
