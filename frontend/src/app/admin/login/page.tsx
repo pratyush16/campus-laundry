@@ -113,21 +113,6 @@ export default function AdminLoginPage() {
               {loading ? 'Authenticating...' : 'Sign In to Console \u2192'}
             </button>
           </form>
-
-          {/* Quick Credential Hints */}
-          <div className="pt-4 border-t border-white/5 space-y-2 text-[11px] text-slate-500">
-            <div className="font-semibold text-slate-400">Default Staff Credentials:</div>
-            <div className="flex justify-between font-mono text-slate-400 bg-obsidian-900/60 p-2 rounded-lg border border-white/5">
-              <span>admin</span>
-              <span className="text-slate-500">admin123</span>
-              <span className="text-gold text-[10px] uppercase">superadmin</span>
-            </div>
-            <div className="flex justify-between font-mono text-slate-400 bg-obsidian-900/60 p-2 rounded-lg border border-white/5">
-              <span>warden_b</span>
-              <span className="text-slate-500">warden123</span>
-              <span className="text-sage text-[10px] uppercase">warden</span>
-            </div>
-          </div>
         </div>
 
         {/* Back to Role Selection */}
