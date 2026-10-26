@@ -114,7 +114,14 @@ SELECT
     t.Expected_Completion_Date
 FROM (
     SELECT 
-        *,
+        Transaction_ID,
+        std_id,
+        Drop_Point_ID,
+        Drop_Off_Date,
+        Expected_Completion_Date,
+        Total_Weight,
+        Cycles_Deducted,
+        Status,
         ROW_NUMBER() OVER (
             PARTITION BY std_id 
             ORDER BY Drop_Off_Date DESC, Transaction_ID DESC
