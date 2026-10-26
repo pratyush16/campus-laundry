@@ -169,7 +169,6 @@ def add_table_record(table_name):
             txn_id = str(payload.get("Transaction_ID", "")).strip()
             std_id = str(payload.get("std_id", "")).strip().upper()
             dp_id = str(payload.get("Drop_Point_ID", "")).strip()
-            vendor_id = str(payload.get("Vendor_ID", "")).strip()
             total_weight = float(payload.get("Total_Weight", 0.0))
             cycles_deducted = int(payload.get("Cycles_Deducted", 1))
             status = str(payload.get("Status", "Dropped")).strip()
@@ -178,16 +177,16 @@ def add_table_record(table_name):
             drop_date = payload.get("Drop_Off_Date") or now.strftime("%Y-%m-%d")
             comp_date = payload.get("Expected_Completion_Date") or (now + timedelta(days=3)).strftime("%Y-%m-%d")
 
-            if not txn_id or not std_id or not dp_id or not vendor_id:
-                return jsonify({"success": False, "error": "Transaction_ID, std_id, Drop_Point_ID, and Vendor_ID are required."}), 400
+            if not txn_id or not std_id or not dp_id:
+                return jsonify({"success": False, "error": "Transaction_ID, std_id, and Drop_Point_ID are required."}), 400
 
             execute_query(
                 """
                 INSERT INTO laundry_transaction
-                (Transaction_ID, std_id, Drop_Point_ID, Vendor_ID, Drop_Off_Date, Expected_Completion_Date, Total_Weight, Cycles_Deducted, Status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                (Transaction_ID, std_id, Drop_Point_ID, Drop_Off_Date, Expected_Completion_Date, Total_Weight, Cycles_Deducted, Status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """,
-                (txn_id, std_id, dp_id, vendor_id, drop_date, comp_date, total_weight, cycles_deducted, status),
+                (txn_id, std_id, dp_id, drop_date, comp_date, total_weight, cycles_deducted, status),
                 commit=True
             )
 

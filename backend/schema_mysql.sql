@@ -50,7 +50,6 @@ CREATE TABLE IF NOT EXISTS laundry_transaction (
     Transaction_ID VARCHAR(20) PRIMARY KEY,
     std_id VARCHAR(10) NOT NULL,
     Drop_Point_ID VARCHAR(20) NOT NULL,
-    Vendor_ID VARCHAR(20) NOT NULL,
     Drop_Off_Date DATE NOT NULL,
     Expected_Completion_Date DATE NOT NULL,
     Total_Weight DECIMAL(5,2) NOT NULL DEFAULT 0.00,
@@ -58,8 +57,7 @@ CREATE TABLE IF NOT EXISTS laundry_transaction (
     Status VARCHAR(20) NOT NULL DEFAULT 'Submitted',
     Actual_Completion_Date DATE NULL,
     CONSTRAINT fk_std_id FOREIGN KEY (std_id) REFERENCES students(std_id) ON DELETE CASCADE,
-    CONSTRAINT fk_drop_point_id FOREIGN KEY (Drop_Point_ID) REFERENCES drop_point(Drop_Point_ID) ON DELETE RESTRICT,
-    CONSTRAINT fk2_vendor_id FOREIGN KEY (Vendor_ID) REFERENCES vendor(Vendor_ID) ON DELETE RESTRICT
+    CONSTRAINT fk_drop_point_id FOREIGN KEY (Drop_Point_ID) REFERENCES drop_point(Drop_Point_ID) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 6. Transaction_Item Table
@@ -181,7 +179,7 @@ BEGIN
         t.std_id,
         t.Drop_Point_ID,
         dp.Location AS drop_point_location,
-        t.Vendor_ID,
+        dp.Vendor_ID,
         v.Vendor_Name AS vendor_name,
         t.Drop_Off_Date,
         t.Expected_Completion_Date,
@@ -190,7 +188,7 @@ BEGIN
         t.Status
     FROM laundry_transaction t
     JOIN drop_point dp ON t.Drop_Point_ID = dp.Drop_Point_ID
-    JOIN vendor v ON t.Vendor_ID = v.Vendor_ID
+    JOIN vendor v ON dp.Vendor_ID = v.Vendor_ID
     WHERE t.std_id = p_std_id
     ORDER BY t.Drop_Off_Date DESC, t.Transaction_ID DESC
     LIMIT 10;

@@ -69,7 +69,6 @@ const TABLE_SCHEMAS: Record<string, { label: string; pk: string; fields: { name:
       { name: 'Transaction_ID', label: 'Transaction ID *', type: 'text', placeholder: 'e.g. TXN99' },
       { name: 'std_id', label: 'Student Reg No *', type: 'text', placeholder: 'e.g. 2502050680' },
       { name: 'Drop_Point_ID', label: 'Drop Point ID *', type: 'text', placeholder: 'e.g. DP01' },
-      { name: 'Vendor_ID', label: 'Vendor ID *', type: 'text', placeholder: 'e.g. VND01' },
       { name: 'Total_Weight', label: 'Total Weight (kg)', type: 'number', default: 3.5 },
       { name: 'Cycles_Deducted', label: 'Cycles Deducted', type: 'number', default: 1 },
       { name: 'Status', label: 'Status', type: 'select', options: ['Dropped', 'Washing', 'Ready', 'Completed', 'Cancelled'] },

@@ -279,7 +279,6 @@ def submit_drop_off():
     if kiosk.get("Operational_Status") != "Active":
         return jsonify({"success": False, "error": f"Kiosk '{kiosk.get('Location')}' is currently not operational."}), 400
 
-    vendor_id = kiosk["Vendor_ID"]
 
     # 3. Calculate 6kg Load Weight
     all_catalog = {
@@ -341,10 +340,10 @@ def submit_drop_off():
         tx.execute(
             """
             INSERT INTO laundry_transaction 
-            (Transaction_ID, std_id, Drop_Point_ID, Vendor_ID, Drop_Off_Date, Expected_Completion_Date, Total_Weight, Cycles_Deducted, Status)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            (Transaction_ID, std_id, Drop_Point_ID, Drop_Off_Date, Expected_Completion_Date, Total_Weight, Cycles_Deducted, Status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
-            (txn_id, std_id, str(drop_point_id), str(vendor_id), drop_off_date, expected_completion, total_weight, cycles_to_deduct, "Submitted")
+            (txn_id, std_id, str(drop_point_id), drop_off_date, expected_completion, total_weight, cycles_to_deduct, "Submitted")
         )
 
         # Insert Transaction Items
@@ -402,7 +401,7 @@ def get_transactions():
         FROM laundry_transaction t
         JOIN students s ON t.std_id = s.std_id
         JOIN drop_point dp ON t.Drop_Point_ID = dp.Drop_Point_ID
-        JOIN vendor v ON t.Vendor_ID = v.Vendor_ID
+        JOIN vendor v ON dp.Vendor_ID = v.Vendor_ID
         WHERE 1=1
     """
     params = []
@@ -433,7 +432,7 @@ def get_transaction_detail(txn_id):
         FROM laundry_transaction t
         JOIN students s ON t.std_id = s.std_id
         JOIN drop_point dp ON t.Drop_Point_ID = dp.Drop_Point_ID
-        JOIN vendor v ON t.Vendor_ID = v.Vendor_ID
+        JOIN vendor v ON dp.Vendor_ID = v.Vendor_ID
         WHERE t.Transaction_ID = %s
         """,
         (str(txn_id),),

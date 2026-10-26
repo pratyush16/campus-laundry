@@ -78,7 +78,7 @@ export interface Transaction {
   contact?: string | number;
   Drop_Point_ID: string;
   drop_point_location?: string;
-  Vendor_ID: string;
+  Vendor_ID?: string;
   vendor_name?: string;
   Drop_Off_Date: string;
   Expected_Completion_Date: string;
