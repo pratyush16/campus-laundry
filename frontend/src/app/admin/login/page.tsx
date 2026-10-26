@@ -110,7 +110,7 @@ export default function AdminLoginPage() {
               disabled={loading}
               className="w-full py-3 rounded-xl bg-gold hover:bg-gold-light text-obsidian-950 font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
             >
-              {loading ? 'Authenticating...' : 'Sign In to Console &rarr;'}
+              {loading ? 'Authenticating...' : 'Sign In to Console \u2192'}
             </button>
           </form>
 
