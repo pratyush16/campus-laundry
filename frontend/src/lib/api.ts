@@ -41,6 +41,13 @@ export interface LaundryItem {
   Standard_Weight: number;
 }
 
+export interface AdminUser {
+  admin_id: number;
+  username: string;
+  full_name: string;
+  role: 'warden' | 'vendor' | 'superadmin';
+}
+
 export interface OrderItemInput {
   item_id: string;
   quantity: number;
@@ -95,14 +102,23 @@ export interface DashboardMetrics {
   default_turnaround_days: number;
 }
 
+function getAdminToken(): string | null {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('admin_token');
+  }
+  return null;
+}
+
 // Helper fetch wrapper
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE}${endpoint}`;
+  const token = getAdminToken();
   try {
     const res = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         ...(options.headers || {}),
       },
       cache: 'no-store', // Always get fresh data from Flask
@@ -256,3 +272,62 @@ export async function deleteTableRecord(tableName: string, recordId: string): Pr
     method: 'DELETE',
   });
 }
+
+// 10. Admin Authentication APIs
+export async function adminLogin(credentials: { username: string; password: string }): Promise<{ success: boolean; token: string; admin: AdminUser }> {
+  const res = await request<{ success: boolean; token: string; admin: AdminUser }>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials),
+  });
+  if (res.token && typeof window !== 'undefined') {
+    localStorage.setItem('admin_token', res.token);
+    localStorage.setItem('admin_user', JSON.stringify(res.admin));
+  }
+  return res;
+}
+
+export async function adminLogout(): Promise<void> {
+  try {
+    await request<any>('/auth/logout', { method: 'POST' });
+  } catch {
+    // ignore
+  } finally {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+    }
+  }
+}
+
+export async function checkAdminSession(): Promise<AdminUser | null> {
+  const token = getAdminToken();
+  if (!token) return null;
+  try {
+    const res = await request<{ success: boolean; admin: AdminUser }>('/auth/me');
+    if (res.admin && typeof window !== 'undefined') {
+      localStorage.setItem('admin_user', JSON.stringify(res.admin));
+    }
+    return res.admin;
+  } catch {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+    }
+    return null;
+  }
+}
+
+export function getCachedAdmin(): AdminUser | null {
+  if (typeof window !== 'undefined') {
+    const raw = localStorage.getItem('admin_user');
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+  }
+  return null;
+}
+

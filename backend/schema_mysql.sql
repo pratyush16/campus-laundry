@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS laundry_transaction (
     Total_Weight DECIMAL(5,2) NOT NULL DEFAULT 0.00,
     Cycles_Deducted INT NOT NULL DEFAULT 1,
     Status VARCHAR(20) NOT NULL DEFAULT 'Submitted',
+    Actual_Completion_Date DATE NULL,
     CONSTRAINT fk_std_id FOREIGN KEY (std_id) REFERENCES students(std_id) ON DELETE CASCADE,
     CONSTRAINT fk_drop_point_id FOREIGN KEY (Drop_Point_ID) REFERENCES drop_point(Drop_Point_ID) ON DELETE RESTRICT,
     CONSTRAINT fk2_vendor_id FOREIGN KEY (Vendor_ID) REFERENCES vendor(Vendor_ID) ON DELETE RESTRICT
@@ -334,7 +335,50 @@ BEGIN
     END IF;
 END //
 
+-- ========================================================================
+-- 11. ADMIN AUTHENTICATION
+-- ========================================================================
+
+-- Trigger: trg_admin_login_timestamp
+-- Auto-updates last_login timestamp upon admin authentication
+DROP TRIGGER IF EXISTS trg_admin_login_timestamp //
+
+CREATE TRIGGER trg_admin_login_timestamp
+BEFORE UPDATE ON admin_users
+FOR EACH ROW
+BEGIN
+    IF NEW.last_login IS NOT NULL AND (OLD.last_login IS NULL OR NEW.last_login != OLD.last_login) THEN
+        SET NEW.last_login = NOW();
+    END IF;
+END //
+
+-- Procedure: sp_AuthenticateAdmin
+-- Looks up active admin by username for authentication verification
+DROP PROCEDURE IF EXISTS sp_AuthenticateAdmin //
+
+CREATE PROCEDURE sp_AuthenticateAdmin(
+    IN p_username VARCHAR(30)
+)
+BEGIN
+    SELECT admin_id, username, password_hash, full_name, role, is_active, last_login
+    FROM admin_users
+    WHERE username = p_username AND is_active = TRUE;
+END //
+
 DELIMITER ;
+
+-- 7. Admin Users Table
+CREATE TABLE IF NOT EXISTS admin_users (
+    admin_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(30) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(60) NOT NULL,
+    role ENUM('warden', 'vendor', 'superadmin') NOT NULL DEFAULT 'warden',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    last_login DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 

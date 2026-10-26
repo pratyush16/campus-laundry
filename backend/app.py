@@ -3,6 +3,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from routes.laundry_routes import laundry_bp
 from routes.admin_mgmt_routes import admin_mgmt_bp
+from routes.auth_routes import auth_bp
 
 def create_app():
     app = Flask(__name__)
@@ -14,6 +15,7 @@ def create_app():
     # Register API Blueprints
     app.register_blueprint(laundry_bp)
     app.register_blueprint(admin_mgmt_bp)
+    app.register_blueprint(auth_bp)
 
     @app.route("/")
     def health_check():

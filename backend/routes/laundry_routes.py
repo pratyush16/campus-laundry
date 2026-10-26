@@ -1,4 +1,5 @@
 import re
+from auth_middleware import require_admin
 from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify
 import time
@@ -458,6 +459,7 @@ def get_transaction_detail(txn_id):
 
 # --- 6. Status Updater (Triggers handle completion date & cancellation cycle refunds) ---
 @laundry_bp.route("/transactions/<txn_id>/status", methods=["PATCH"])
+@require_admin
 def update_status(txn_id):
     data = request.get_json() or {}
     new_status = data.get("status")
@@ -565,6 +567,7 @@ def get_dashboard_metrics():
 
 # --- 8. Standalone Annual / Semester Quota Reset ---
 @laundry_bp.route("/admin/reset-quota", methods=["POST"])
+@require_admin
 def reset_annual_quota():
     data = request.get_json() or {}
     new_quota = int(data.get("quota") or TOTAL_QUOTA_CYCLES)

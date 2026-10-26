@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   fetchDashboard,
   fetchKiosks,
@@ -10,9 +11,12 @@ import {
   addTableRecord,
   updateTableRecord,
   deleteTableRecord,
+  checkAdminSession,
+  adminLogout,
   DashboardMetrics,
   Kiosk,
   Transaction,
+  AdminUser,
 } from '@/lib/api'
 
 const TABLE_SCHEMAS: Record<string, { label: string; pk: string; fields: { name: string; label: string; type: string; placeholder?: string; default?: any; options?: string[] }[] }> = {
@@ -77,6 +81,9 @@ export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null)
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([])
   const [kiosks, setKiosks] = useState<Kiosk[]>([])
+  const router = useRouter()
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null)
+  const [authLoading, setAuthLoading] = useState<boolean>(true)
   const [activeAdminTab, setActiveAdminTab] = useState<'stream' | 'tables'>('stream')
 
   // Table Management State
@@ -99,7 +106,17 @@ export default function AdminDashboardPage() {
   const [deleteStatus, setDeleteStatus] = useState<string | null>(null)
 
   useEffect(() => {
-    loadAdminData()
+    async function verifyAuth() {
+      const user = await checkAdminSession()
+      if (!user) {
+        router.push('/admin/login')
+        return
+      }
+      setAdminUser(user)
+      setAuthLoading(false)
+      loadAdminData()
+    }
+    verifyAuth()
   }, [])
 
   useEffect(() => {
@@ -234,13 +251,42 @@ export default function AdminDashboardPage() {
     }
   }
 
+  if (authLoading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-3">
+        <div className="w-8 h-8 rounded-full border-2 border-gold/30 border-t-gold animate-spin" />
+        <p className="text-xs text-slate-400 font-mono">Verifying admin credentials...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
-      {/* Section Header Label */}
-      <div className="pb-2 border-b border-white/5">
-        <h1 className="text-sm font-semibold uppercase tracking-wider text-gold">
-          Hostel Admin &amp; Vendor Console
-        </h1>
+      {/* Section Header Label & Admin Profile Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/5">
+        <div>
+          <h1 className="text-sm font-semibold uppercase tracking-wider text-gold">
+            Hostel Admin &amp; Vendor Console
+          </h1>
+          {adminUser && (
+            <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
+              <span>Signed in as <span className="text-white font-medium">{adminUser.full_name}</span></span>
+              <span>&bull;</span>
+              <span className="font-mono text-[10px] uppercase px-2 py-0.5 rounded bg-gold/10 border border-gold/30 text-gold font-bold">
+                {adminUser.role}
+              </span>
+            </div>
+          )}
+        </div>
+        <button
+          onClick={async () => {
+            await adminLogout()
+            router.push('/admin/login')
+          }}
+          className="self-start sm:self-center text-xs font-medium px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/40 text-red-400 hover:bg-red-500/20 hover:border-red-500 hover:text-red-300 transition-all shadow-sm"
+        >
+          Sign Out
+        </button>
       </div>
 
       {/* 1. TOP STATS OVERVIEW CARDS (ADMIN ONLY) */}
