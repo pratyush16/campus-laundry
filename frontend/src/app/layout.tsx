@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Navbar from '@/components/Navbar'
 
 export const metadata: Metadata = {
   title: 'CampusLaundry',
@@ -22,29 +23,7 @@ export default function RootLayout({
         </div>
 
         {/* Global Navigation Header */}
-        <header className="sticky top-0 z-50 glass-panel border-b border-white/5 px-4 sm:px-8 py-3.5">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-            {/* Brand Title */}
-            <div>
-              <a href="/" className="text-xl sm:text-2xl font-black tracking-tight text-white hover:text-slate-200 transition-colors">
-                CampusLaundry
-              </a>
-            </div>
-
-            {/* Right side: Today's Date and Switch Role */}
-            <div className="flex items-center gap-3">
-              <div className="text-xs font-mono text-slate-300 px-3 py-1.5 rounded-lg bg-obsidian-900 border border-white/5">
-                {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-              </div>
-              <a
-                href="/"
-                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/40 text-red-400 hover:bg-red-500/20 hover:border-red-500 hover:text-red-300 transition-all shadow-sm"
-              >
-                Logout
-              </a>
-            </div>
-          </div>
-        </header>
+        <Navbar />
 
         {/* Main Content Area */}
         <main className="flex-1 relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-8">
