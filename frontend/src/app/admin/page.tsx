@@ -29,7 +29,7 @@ const TABLE_SCHEMAS: Record<string, { label: string; pk: string; fields: { name:
       { name: 'std_name', label: 'Student Full Name *', type: 'text', placeholder: 'e.g. Vikramaditya Sen' },
       { name: 'hostel', label: 'Hostel Block *', type: 'select', options: [...Array.from({ length: 12 }, (_, i) => `B${i + 1}`), ...Array.from({ length: 8 }, (_, i) => `G${i + 1}`)] },
       { name: 'room', label: 'Room Number *', type: 'text', placeholder: 'e.g. 304' },
-      { name: 'contact', label: 'Contact Number', type: 'text', placeholder: 'e.g. 9876543210' },
+      { name: 'contact', label: 'Contact Number *', type: 'text', placeholder: 'e.g. 9876543210' },
       { name: 'quota', label: 'Cycle Quota', type: 'number', default: 30 },
       { name: 'cycle_used', label: 'Cycles Used', type: 'number', default: 0 },
     ],
@@ -40,7 +40,7 @@ const TABLE_SCHEMAS: Record<string, { label: string; pk: string; fields: { name:
     fields: [
       { name: 'Vendor_ID', label: 'Vendor ID *', type: 'text', placeholder: 'e.g. VND03' },
       { name: 'Vendor_Name', label: 'Vendor Name *', type: 'text', placeholder: 'e.g. Royal Cleaners' },
-      { name: 'Contact_No', label: 'Contact Number', type: 'text', placeholder: 'e.g. 9871122334' },
+      { name: 'Contact_No', label: 'Contact Number *', type: 'text', placeholder: 'e.g. 9871122334' },
     ],
   },
   drop_point: {
@@ -939,6 +939,7 @@ export default function AdminDashboardPage() {
                     ) : (
                       <input
                         type={f.type}
+                        required={f.label.includes('*') && !isPk}
                         disabled={isPk}
                         value={editFormData[f.name] ?? ''}
                         onChange={(e) =>

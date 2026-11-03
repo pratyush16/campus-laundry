@@ -167,14 +167,18 @@ def register_student():
     academic_year = (data.get("academic_year") or auto_year).strip()
     quota = int(data.get("quota") or TOTAL_QUOTA_CYCLES)
 
-    if not std_id or not std_name or not hostel or not room:
-        return jsonify({"success": False, "error": "Registration Number, Full Name, Hostel, and Room are required."}), 400
+    if not std_id or not std_name or not hostel or not room or not contact:
+        return jsonify({"success": False, "error": "Registration Number, Full Name, Hostel, Room, and Contact Number are required."}), 400
+
+    clean_contact_str = re.sub(r'\D', '', str(contact))
+    if len(clean_contact_str) != 10:
+        return jsonify({"success": False, "error": "Contact number must be exactly 10 digits."}), 400
+    clean_contact = int(clean_contact_str)
 
     existing = execute_query("SELECT * FROM students WHERE std_id = %s", (std_id,), fetchone=True)
     if existing:
         return jsonify({"success": False, "error": f"Registration Number '{std_id}' is already registered."}), 400
 
-    clean_contact = int(re.sub(r'\D', '', str(contact)) or 0)
     execute_query(
         """
         INSERT INTO students (std_id, std_name, contact, hostel, room, academic_year, quota, cycle_used, cycle_remaining)

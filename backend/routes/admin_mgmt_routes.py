@@ -86,15 +86,28 @@ def add_table_record(table_name):
         if table_name == "students":
             std_id = str(payload.get("std_id", "")).strip().upper()
             std_name = str(payload.get("std_name", "")).strip()
-            contact = payload.get("contact", 9876543210)
-            hostel = str(payload.get("hostel", "B1")).strip()
+            contact_raw = str(payload.get("contact", "")).strip()
+            hostel = str(payload.get("hostel", "")).strip()
             room = str(payload.get("room", "")).strip()
             quota = int(payload.get("quota", 30))
             cycle_used = int(payload.get("cycle_used", 0))
             cycle_remaining = int(payload.get("cycle_remaining", quota - cycle_used))
 
-            if not std_id or not std_name:
-                return jsonify({"success": False, "error": "std_id and std_name are required."}), 400
+            if not std_id:
+                return jsonify({"success": False, "error": "Registration Number (std_id) is required."}), 400
+            if not std_name:
+                return jsonify({"success": False, "error": "Student Name (std_name) is required."}), 400
+            if not contact_raw:
+                return jsonify({"success": False, "error": "Contact Number is required."}), 400
+            if not hostel:
+                return jsonify({"success": False, "error": "Hostel block is required."}), 400
+            if not room:
+                return jsonify({"success": False, "error": "Room number is required."}), 400
+
+            clean_contact = re.sub(r'\D', '', contact_raw)
+            if len(clean_contact) != 10:
+                return jsonify({"success": False, "error": "Contact Number must be exactly 10 digits."}), 400
+            contact = int(clean_contact)
 
             academic_year = payload.get("academic_year")
             if not academic_year:
@@ -118,10 +131,19 @@ def add_table_record(table_name):
         elif table_name == "vendor":
             vendor_id = str(payload.get("Vendor_ID", "")).strip()
             vendor_name = str(payload.get("Vendor_Name", "")).strip()
-            contact_no = payload.get("Contact_No", 9876543210)
+            contact_raw = str(payload.get("Contact_No", "")).strip()
 
-            if not vendor_id or not vendor_name:
-                return jsonify({"success": False, "error": "Vendor_ID and Vendor_Name are required."}), 400
+            if not vendor_id:
+                return jsonify({"success": False, "error": "Vendor_ID is required."}), 400
+            if not vendor_name:
+                return jsonify({"success": False, "error": "Vendor_Name is required."}), 400
+            if not contact_raw:
+                return jsonify({"success": False, "error": "Contact Number (Contact_No) is required."}), 400
+
+            clean_contact = re.sub(r'\D', '', contact_raw)
+            if len(clean_contact) != 10:
+                return jsonify({"success": False, "error": "Contact Number must be exactly 10 digits."}), 400
+            contact_no = int(clean_contact)
 
             execute_query(
                 "INSERT INTO vendor (Vendor_ID, Vendor_Name, Contact_No) VALUES (%s, %s, %s)",
@@ -249,10 +271,18 @@ def update_table_record(table_name, record_id):
 
         # Specific table update rules
         if table_name == "students":
-            std_name = payload.get("std_name", existing["std_name"])
-            contact = payload.get("contact", existing["contact"])
-            hostel = payload.get("hostel", existing["hostel"])
-            room = payload.get("room", existing["room"])
+            std_name = str(payload.get("std_name", existing["std_name"])).strip()
+            contact_raw = str(payload.get("contact", existing["contact"])).strip()
+            hostel = str(payload.get("hostel", existing["hostel"])).strip()
+            room = str(payload.get("room", existing["room"])).strip()
+
+            if not std_name or not contact_raw or not hostel or not room:
+                return jsonify({"success": False, "error": "Name, Contact, Hostel, and Room cannot be empty."}), 400
+
+            clean_contact = re.sub(r'\D', '', contact_raw)
+            if len(clean_contact) != 10:
+                return jsonify({"success": False, "error": "Contact Number must be exactly 10 digits."}), 400
+            contact = int(clean_contact)
             academic_year = payload.get("academic_year", existing["academic_year"])
             quota = int(payload.get("quota", existing["quota"]))
             cycle_used = int(payload.get("cycle_used", existing["cycle_used"]))
@@ -270,8 +300,16 @@ def update_table_record(table_name, record_id):
             )
 
         elif table_name == "vendor":
-            vendor_name = payload.get("Vendor_Name", existing["Vendor_Name"])
-            contact_no = payload.get("Contact_No", existing["Contact_No"])
+            vendor_name = str(payload.get("Vendor_Name", existing["Vendor_Name"])).strip()
+            contact_raw = str(payload.get("Contact_No", existing["Contact_No"])).strip()
+
+            if not vendor_name or not contact_raw:
+                return jsonify({"success": False, "error": "Vendor Name and Contact Number cannot be empty."}), 400
+
+            clean_contact = re.sub(r'\D', '', contact_raw)
+            if len(clean_contact) != 10:
+                return jsonify({"success": False, "error": "Contact Number must be exactly 10 digits."}), 400
+            contact_no = int(clean_contact)
             execute_query(
                 "UPDATE vendor SET Vendor_Name = %s, Contact_No = %s WHERE Vendor_ID = %s",
                 (vendor_name, contact_no, record_id),
