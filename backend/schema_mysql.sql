@@ -255,8 +255,8 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Validation Error: wrong student ID';
     END IF;
 
-    IF LENGTH(CAST(NEW.contact AS CHAR)) != 10 OR CAST(NEW.contact AS CHAR) NOT REGEXP '^[6-9][0-9]{9}$' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Validation Error: Phone number must be exactly 10 digits starting with 6, 7, 8, or 9.';
+    IF LENGTH(CAST(NEW.contact AS CHAR)) != 10 OR CAST(NEW.contact AS CHAR) NOT REGEXP '^[0-9]{10}$' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Validation Error: Phone number must be exactly 10 digits.';
     END IF;
 
     IF NEW.hostel NOT REGEXP '^(B([1-9]|1[0-2])|G[1-8])$' THEN
@@ -286,8 +286,8 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Validation Error: wrong student ID';
     END IF;
 
-    IF LENGTH(CAST(NEW.contact AS CHAR)) != 10 OR CAST(NEW.contact AS CHAR) NOT REGEXP '^[6-9][0-9]{9}$' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Validation Error: Phone number must be exactly 10 digits starting with 6, 7, 8, or 9.';
+    IF LENGTH(CAST(NEW.contact AS CHAR)) != 10 OR CAST(NEW.contact AS CHAR) NOT REGEXP '^[0-9]{10}$' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Validation Error: Phone number must be exactly 10 digits.';
     END IF;
 
     IF NEW.hostel NOT REGEXP '^(B([1-9]|1[0-2])|G[1-8])$' THEN
